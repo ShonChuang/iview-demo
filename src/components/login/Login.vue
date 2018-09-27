@@ -1,8 +1,8 @@
 <template>
-  <div style="background-color: #f2f2f2;">
-    <Card style="width: 400px;text-align: left; margin-left: auto; margin-right: auto;">
+  <div style="background-color: #f2f2f2">
+    <Card style="width: 400px;text-align: left; margin-left: auto; margin-right: auto">
 
-      <h1 slot="title">登入呦</h1>
+      <h1 slot="title" style="text-align: center;">登入呦</h1>
       帳號：
       <Input style="width:auto" v-model="account"/>
       <Alert show-icon type="error" v-show="accountalert" style="display:inline">請輸入帳號</Alert>
@@ -37,13 +37,16 @@ export default {
       this.accountalert = false;
       this.passwordalert = false;
       if (!account) this.accountalert = true;
-      if (!password) this.passwordalert = true;
-      this.logindata = {
-        status: 'success',
-        token: '123456'
-      };
-      if (this.logindata.status === 'success') {
-        this.$router.push({ name: 'Layout' });
+      else if (!password) this.passwordalert = true;
+      else {
+        this.logindata = {
+          status: 'success',
+          token: '123456'
+        };
+        if (this.logindata.status === 'success') {
+          this.GLOBAL.XSRF_TOKEN = this.logindata.token;
+          this.$router.push({ name: 'Layout' });
+        }
       }
     }
   }
