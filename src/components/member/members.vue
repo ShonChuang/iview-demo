@@ -1,35 +1,40 @@
 <template>
   <div>
-
-{{dataCount}}
-{{token}}
-    <Table size="small" border ref="selection" :columns="columns" :data="memberdata"></Table>
-      <div style="margin: 10px;overflow: hidden">
-        <div style="float: right;">
-
-          <Page
-            :total="dataCount"
-            :page-size="pageSize"
-            show-total
-            @on-change="changepage"
-          ></Page>
+    <Breadcrumb :style="{margin: '16px 0'}">
+      <BreadcrumbItem>
+        <router-link :to="{name:'Layout'}">Home</router-link>
+      </BreadcrumbItem>
+    </Breadcrumb>
+    <Card>
+      <div style="height: 600px">
+        <Table size="small" border ref="selection" :columns="columns" :data="memberdata"></Table>
+        <div style="margin: 10px;overflow: hidden">
+          <div style="float: right;">
+            <Page
+              :total="dataCount"
+              :page-size="pageSize"
+              show-total
+              @on-change="changepage"
+            ></Page>
+          </div>
         </div>
+        <Modal
+          v-model="editModal"
+          title="編輯資料"
+          ok-text="儲存"
+          @on-ok="modifymamber"
+        >
+          <span style="display:inline-block;width:100px;">Name:</span>
+          <Input style="width:auto" v-model="editedItem.name" placeholder=""></Input><br>
+          <span style="display:inline-block;width:100px;">Age:</span>
+          <Input style="width:auto" v-model="editedItem.age" placeholder=""></Input><br>
+          <span style="display:inline-block;width:100px;">Address:</span>
+          <Input style="width:auto" v-model="editedItem.address" placeholder=""></Input><br>
+          <span style="display:inline-block;width:100px;">Date:</span>
+          <Input style="width:auto" v-model="editedItem.date" placeholder=""></Input>
+        </Modal>
       </div>
-    <Modal
-      v-model="editModal"
-      title="編輯資料"
-      ok-text="儲存"
-      @on-ok="modifymamber"
-    >
-      <span style="display:inline-block;width:100px;">Name:</span>
-      <Input style="width:auto" v-model="editedItem.name" placeholder=""></Input><br>
-      <span style="display:inline-block;width:100px;">Age:</span>
-      <Input style="width:auto" v-model="editedItem.age" placeholder=""></Input><br>
-      <span style="display:inline-block;width:100px;">Address:</span>
-      <Input style="width:auto" v-model="editedItem.address" placeholder=""></Input><br>
-      <span style="display:inline-block;width:100px;">Date:</span>
-      <Input style="width:auto" v-model="editedItem.date" placeholder=""></Input>
-    </Modal>
+    </Card>
   </div>
 </template>
 

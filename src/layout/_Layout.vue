@@ -37,18 +37,14 @@
       </Menu>
     </Sider>
     <Layout :style="{marginLeft: '200px'}">
-      <Header :style="{background: '#fff', boxShadow: '0 2px 3px 2px rgba(0,0,0,.1)'}"></Header>
-        <Content :style="{padding: '0 16px 16px'}">
-        <Breadcrumb :style="{margin: '16px 0'}">
-          <BreadcrumbItem>
-            <router-link :to="{name:'Layout'}">Home</router-link>
-          </BreadcrumbItem>
-        </Breadcrumb>
-        <Card>
-          <div style="height: 600px">
-            <router-view name="meunArea"/>
-          </div>
-        </Card>
+      <Header
+        :style="{background: '#fff', boxShadow: '0 2px 3px 2px rgba(0,0,0,.1)'}"
+        style="text-align: right"
+      >
+        <Button type="primary" @click="doLogout()">Logout</Button>
+      </Header>
+      <Content :style="{padding: '0 16px 16px'}">
+        <router-view name="meunArea"/>
       </Content>
     </Layout>
   </div>
@@ -60,6 +56,11 @@ export default {
     return {
       isCollapsed: false
     };
+  },
+  methods: {
+    doLogout() {
+      this.$router.push({ name: 'Login' });
+    }
   }
 };
 </script>

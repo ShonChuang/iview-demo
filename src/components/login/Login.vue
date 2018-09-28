@@ -13,7 +13,15 @@
       <Alert show-icon type="error" v-show="passwordalert" style="display:inline">請輸入密碼</Alert>
       <br>
       <br>
-      <Button  type="success" @click="doLogin(account,password)">登入</Button>
+      <div style="text-align: center">
+        <Button
+          style="text-align: center"
+          type="success"
+          @click="doLogin(account,password)"
+        >
+          登入
+        </Button>
+      </div>
     </Card>
   </div>
 </template>
