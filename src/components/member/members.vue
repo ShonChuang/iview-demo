@@ -4,6 +4,7 @@
       <BreadcrumbItem>
         <router-link :to="{name:'Layout'}">Home</router-link>
       </BreadcrumbItem>
+      <BreadcrumbItem>人員列表</BreadcrumbItem>
     </Breadcrumb>
     <Card>
       <div style="height: 600px">
