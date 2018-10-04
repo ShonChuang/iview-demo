@@ -22,11 +22,19 @@
           登入
         </Button>
       </div>
+    {{posts}}123
     </Card>
   </div>
 </template>
 
 <script>
+import VueRx from 'vue-rx';
+import { Observable, interval, fromEvent, of } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
+import { ajax } from 'rxjs/ajax';
+import Vue from 'vue';
+
+Vue.use(VueRx);
 export default {
   data() {
     return {
@@ -37,7 +45,8 @@ export default {
       logindata: {
         status: '',
         token: ''
-      }
+      },
+      posts: ''
     };
   },
   methods: {
@@ -53,9 +62,22 @@ export default {
         };
         if (this.logindata.status === 'success') {
           this.GLOBAL.XSRF_TOKEN = this.logindata.token;
-          this.$router.push({ name: 'Layout' });
+          // this.$router.push({ name: 'Layout' });
+          this.callLoginAPI();
         }
       }
+    },
+    callLoginAPI() {
+      const body = JSON.stringify({ AccountId: 'howard1', Password: 'abc123' });
+      const headerss = new Headers({ 'Content-Type': 'application/json' });
+      ajax
+        .post('http://192.168.11.144/login', body, headerss)
+        .pipe(catchError(error => console.log('error: ', error)))
+        .subscribe((obs) => {
+          console.log(obs);
+
+          // this.posts = obs.response.result;
+        });
     }
   }
 };
