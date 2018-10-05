@@ -22,7 +22,7 @@
           登入
         </Button>
       </div>
-    {{posts}}123
+    {{posts}}
     </Card>
   </div>
 </template>
@@ -70,7 +70,7 @@ export default {
     callLoginAPI(account, password) {
       const body = JSON.stringify({ AccountId: account, Password: password });
       ajax
-        .post('/login', body, { 'Content-Type': 'application/json' })
+        .post('/api/login', body, { 'Content-Type': 'application/json' })
         .pipe(catchError((error) => {
           console.log('error: ', error);
         }))
@@ -81,6 +81,7 @@ export default {
             this.GLOBAL.XSRF_TOKEN = this.posts;
             this.$router.push({ name: 'Layout' });
           } else {
+            console.log('error: ', obs.response);
             this.$Message.info(obs.response.statusMsg);
           }
         });

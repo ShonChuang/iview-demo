@@ -44,6 +44,7 @@
         <Button type="primary" @click="doLogout()">Logout</Button>
       </Header>
       <Content :style="{padding: '0 16px 16px'}">
+        <!-- {{this.GLOBAL.XSRF_TOKEN}} -->
         <router-view name="meunArea"/>
       </Content>
     </Layout>
@@ -59,6 +60,11 @@ export default {
   },
   methods: {
     doLogout() {
+      this.$router.push({ name: 'Login' });
+    }
+  },
+  beforeCreate() {
+    if (this.GLOBAL.XSRF_TOKEN === '') {
       this.$router.push({ name: 'Login' });
     }
   }

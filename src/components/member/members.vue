@@ -8,7 +8,7 @@
     </Breadcrumb>
     <Card>
       <div style="height: 600px">
-        <Table size="small" border ref="selection" :columns="columns" :data="memberdata"></Table>
+        <Table size="small" :loading="loading" border ref="selection" :columns="columns" :data="memberdata"></Table>
         <div style="margin: 10px;overflow: hidden">
           <div style="float: right;">
             <Page
@@ -36,37 +36,52 @@
         </Modal>
       </div>
     </Card>
+    <!-- {{posts}} -->
   </div>
 </template>
 
 <script>
+import VueRx from 'vue-rx';
+// import { Observable, interval, fromEvent, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { ajax } from 'rxjs/ajax';
+import Vue from 'vue';
+
 export default {
   data() {
     return {
+      loading: true,
       token: this.GLOBAL.XSRF_TOKEN,
       dataCount: 0,
-      pageSize: 10,
+      pageSize: 5,
       editModal: false,
       columns: [
+        // {
+        //   type: 'selection',
+        //   width: 60,
+        //   align: 'center'
+        // },
         {
-          type: 'selection',
-          width: 60,
+          title: 'ID',
+          key: 'id',
+          width: 50,
           align: 'center'
+          // sortable: true
         },
         {
-          title: 'Name',
-          key: 'name',
-          sortable: true
+          title: '姓名',
+          key: 'memberName'
+          // sortable: true
         },
         {
-          title: 'Age',
-          key: 'age',
-          sortable: true
+          title: 'email',
+          key: 'email'
+          // sortable: true
         },
         {
-          title: 'Address',
-          key: 'address',
-          sortable: true
+          title: '手機',
+          key: 'mobilephone'
+          // sortable: true
         },
         {
           title: 'Action',
@@ -87,7 +102,7 @@ export default {
                   this.show(params.index);
                 }
               }
-            }, 'View'),
+            }, '詳細'),
             h('Button', {
               props: {
                 type: 'primary',
@@ -108,108 +123,6 @@ export default {
         }
       ],
       posts: [
-        {
-          name: 'John Brown',
-          age: 18,
-          address: 'New York No. 1 Lake Park',
-          date: '2016-10-03'
-        },
-        {
-          name: 'Jim Green',
-          age: 24,
-          address: 'London No. 1 Lake Park',
-          date: '2016-10-01'
-        },
-        {
-          name: 'Joe Black',
-          age: 30,
-          address: 'Sydney No. 1 Lake Park',
-          date: '2016-10-02'
-        },
-        {
-          name: 'Joe Black',
-          age: 30,
-          address: 'Sydney No. 1 Lake Park',
-          date: '2016-10-02'
-        },
-        {
-          name: 'Joe Black',
-          age: 30,
-          address: 'Sydney No. 1 Lake Park',
-          date: '2016-10-02'
-        },
-        {
-          name: 'Joe Black',
-          age: 30,
-          address: 'Sydney No. 1 Lake Park',
-          date: '2016-10-02'
-        },
-        {
-          name: 'Joe Black',
-          age: 30,
-          address: 'Sydney No. 1 Lake Park',
-          date: '2016-10-02'
-        },
-        {
-          name: 'Joe Black',
-          age: 30,
-          address: 'Sydney No. 1 Lake Park',
-          date: '2016-10-02'
-        },
-        {
-          name: 'Joe Black',
-          age: 30,
-          address: 'Sydney No. 1 Lake Park',
-          date: '2016-10-02'
-        },
-        {
-          name: 'Joe Black',
-          age: 30,
-          address: 'Sydney No. 1 Lake Park',
-          date: '2016-10-02'
-        },
-        {
-          name: 'Joe Black',
-          age: 30,
-          address: 'Sydney No. 1 Lake Park',
-          date: '2016-10-02'
-        },
-        {
-          name: 'Joe Black',
-          age: 30,
-          address: 'Sydney No. 1 Lake Park',
-          date: '2016-10-02'
-        },
-        {
-          name: 'Joe Black',
-          age: 30,
-          address: 'Sydney No. 1 Lake Park',
-          date: '2016-10-02'
-        },
-        {
-          name: 'Joe Black',
-          age: 30,
-          address: 'Sydney No. 1 Lake Park',
-          date: '2016-10-02'
-        },
-        {
-          name: 'Joe Black',
-          age: 30,
-          address: 'Sydney No. 1 Lake Park',
-          date: '2016-10-02'
-        },
-        {
-          name: 'Joe Black',
-          age: 30,
-          address: 'Sydney No. 1 Lake Park',
-          date: '2016-10-02'
-        },
-        {
-          name: 'Jon Snow',
-          age: 26,
-          address: 'Ottawa No. 2 Lake Park',
-          date: '2016-10-04'
-        }
       ],
       memberdata: [
       ],
@@ -222,12 +135,20 @@ export default {
       editedIndex: -1
     };
   },
-  mounted() {
-    this.dataCount = this.posts.length;
-    this.changepage(1);
+  beforeCreate() {
   },
-
-
+  beforeMount() {
+    this.getMember();
+    console.log(this.posts);
+    console.log(this.memberdata);
+  },
+  mounted() {
+    console.log(this.posts);
+    console.log(this.memberdata);
+  },
+  updated() {
+    this.dataCount = this.posts.length;
+  },
   methods: {
     changepage(index) {
       const start = (index - 1) * this.pageSize;
@@ -236,17 +157,42 @@ export default {
     },
     show(index) {
       this.$Modal.info({
-        title: 'User Info',
+        title: '詳細資料',
         content: `
-        Name：${this.memberdata[index].name}<br>
-        Age：${this.memberdata[index].age}<br>
-        Address：${this.memberdata[index].address}`
+        ID：${this.memberdata[index].id}<br>
+        accountId：${this.memberdata[index].accountId}<br>
+        姓名：${this.memberdata[index].memberName}<br>
+        email：${this.memberdata[index].email}<br>
+        手機：${this.memberdata[index].mobilephone}<br>
+        建立時間：${this.memberdata[index].creatTime}<br>
+        最後修改間：${this.memberdata[index].editTime}`
       });
     },
     modifymamber() {
       Object.assign(this.memberdata[this.editedIndex], this.editedItem);
       this.$Message.info('Saved');
       this.editedIndex = -1;
+    },
+    getMember() {
+      const header = { Authorization: `Bearer ${this.GLOBAL.XSRF_TOKEN}` };
+      ajax
+        .post('/api/list', {}, header)
+        .pipe(catchError((error) => {
+          console.log('error: ', error);
+        }))
+        .subscribe(
+          (obs) => {
+            console.log(obs.response);
+            this.posts = obs.response;
+          },
+          error => console.log(error),
+          () => {
+            console.log(213);
+            console.log(this.posts);
+            this.changepage(1);
+            this.loading = false;
+          }
+        );
     }
   }
 };
