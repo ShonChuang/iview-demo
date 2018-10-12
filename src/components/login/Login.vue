@@ -49,6 +49,11 @@ export default {
       posts: ''
     };
   },
+  beforeCreate() {
+    if (this.GLOBAL.XSRF_TOKEN !== '') {
+      this.$router.push({ name: 'Layout' });
+    }
+  },
   methods: {
     doLogin(account, password) {
       this.accountalert = false;

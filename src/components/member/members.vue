@@ -7,8 +7,22 @@
       <BreadcrumbItem>人員列表</BreadcrumbItem>
     </Breadcrumb>
     <Card>
+      <p slot="title">
+          <Icon type="ios-film-outline"></Icon>
+          人員列表
+      </p>
+      <a href="" slot="extra" @click.prevent="createAccount()">
+          <Icon type="ios-loop-strong"></Icon>
+          Create
+      </a>
       <div style="height: 600px">
-        <Table size="small" :loading="loading" border ref="selection" :columns="columns" :data="memberdata"></Table>
+        <Table size="small"
+        :loading="loading"
+        border
+        ref="selection"
+        :columns="columns"
+        :data="memberdata">
+        </Table>
         <div style="margin: 10px;overflow: hidden">
           <div style="float: right;">
             <Page
@@ -25,27 +39,55 @@
           ok-text="儲存"
           @on-ok="modifymamber"
         >
-          <span style="display:inline-block;width:100px;">Name:</span>
-          <Input style="width:auto" v-model="editedItem.name" placeholder=""></Input><br>
-          <span style="display:inline-block;width:100px;">Age:</span>
-          <Input style="width:auto" v-model="editedItem.age" placeholder=""></Input><br>
-          <span style="display:inline-block;width:100px;">Address:</span>
-          <Input style="width:auto" v-model="editedItem.address" placeholder=""></Input><br>
-          <span style="display:inline-block;width:100px;">Date:</span>
-          <Input style="width:auto" v-model="editedItem.date" placeholder=""></Input>
+          <span style="display:inline-block;width:100px;">id:</span>
+          {{editedItem.id}}<br>
+          <span style="display:inline-block;width:100px;">accountId:</span>
+          {{editedItem.accountId}}<br>
+          <span style="display:inline-block;width:100px;">memberName:</span>
+          <Input style="width:auto" v-model="editedItem.memberName" placeholder=""></Input><br>
+          <span style="display:inline-block;width:100px;">email:</span>
+          <Input style="width:auto" v-model="editedItem.email" placeholder=""></Input><br>
+          <span style="display:inline-block;width:100px;">mobilephone:</span>
+          <Input style="width:auto" v-model="editedItem.mobilephone" placeholder=""></Input><br>
+          <span style="display:inline-block;width:100px;">帳號狀態:</span>
+          <i-switch size="large" v-model="editedItem.isEnable">
+            <span slot="open">啟用</span>
+            <span slot="close">禁用</span>
+          </i-switch><br>
+          <span style="display:inline-block;width:100px;">creatTime:</span>
+          {{editedItem.creatTime}}<br>
+          <span style="display:inline-block;width:100px;">editTime:</span>
+          {{editedItem.editTime}}
+        </Modal>
+        <Modal v-model="modal2" width="360">
+          <p slot="header" style="color:#f60;text-align:center">
+              <Icon type="ios-information-circle"></Icon>
+              <span>Delete confirmation</span>
+          </p>
+          <div style="text-align:center">
+            <p>After this task is deleted, the downstream 10 tasks will not be implemented.</p>
+            <p>Will you delete it?</p>
+          </div>
+          <div slot="footer">
+            <Button
+              type="error"
+              size="large"
+              long
+              :loading="modal_loading"
+              @click="del"
+            >Delete
+            </Button>
+          </div>
         </Modal>
       </div>
     </Card>
-    <!-- {{posts}} -->
   </div>
 </template>
 
 <script>
-import VueRx from 'vue-rx';
 // import { Observable, interval, fromEvent, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { ajax } from 'rxjs/ajax';
-import Vue from 'vue';
 
 export default {
   data() {
@@ -53,18 +95,18 @@ export default {
       loading: true,
       token: this.GLOBAL.XSRF_TOKEN,
       dataCount: 0,
-      pageSize: 5,
+      pageSize: 10,
+      createModal: false,
       editModal: false,
+      options: [
+        { text: 'Yes', value: true },
+        { text: 'No', value: false }
+      ],
       columns: [
-        // {
-        //   type: 'selection',
-        //   width: 60,
-        //   align: 'center'
-        // },
         {
           title: 'ID',
           key: 'id',
-          width: 50,
+          width: 100,
           align: 'center'
           // sortable: true
         },
@@ -86,7 +128,7 @@ export default {
         {
           title: 'Action',
           key: 'action',
-          width: 150,
+          width: 200,
           align: 'center',
           render: (h, params) => h('div', [
             h('Button', {
@@ -118,7 +160,21 @@ export default {
                   this.editModal = true;
                 }
               }
-            }, '編輯')
+            }, '編輯'),
+            h('Button', {
+              props: {
+                type: 'primary',
+                size: 'small'
+              },
+              style: {
+                marginRight: '5px'
+              },
+              on: {
+                click: () => {
+                  this.deletemember(this.memberdata[params.index].id);
+                }
+              }
+            }, '刪除')
           ])
         }
       ],
@@ -126,11 +182,10 @@ export default {
       ],
       memberdata: [
       ],
+      defaultItem: {
+        isEnable: true
+      },
       editedItem: {
-        name: '123',
-        age: 0,
-        address: '',
-        date: '1911-01-01'
       },
       editedIndex: -1
     };
@@ -139,12 +194,8 @@ export default {
   },
   beforeMount() {
     this.getMember();
-    console.log(this.posts);
-    console.log(this.memberdata);
   },
   mounted() {
-    console.log(this.posts);
-    console.log(this.memberdata);
   },
   updated() {
     this.dataCount = this.posts.length;
@@ -168,13 +219,52 @@ export default {
         最後修改間：${this.memberdata[index].editTime}`
       });
     },
+    createAccount() {
+
+    },
     modifymamber() {
-      Object.assign(this.memberdata[this.editedIndex], this.editedItem);
+      // Object.assign(this.memberdata[this.editedIndex], this.editedItem);
+      const header = { 'Content-Type': 'application/json', Authorization: `Bearer ${this.GLOBAL.XSRF_TOKEN}` };
+      // const body = JSON.stringify(this.editedItem);
+
+      const body = JSON.stringify({
+        id: this.editedItem.id,
+        accountId: this.editedItem.accountId,
+        password: 'abc123',
+        memberName: this.editedItem.memberName,
+        email: this.editedItem.email,
+        mobilephone: this.editedItem.mobilephone,
+        isEnable: true
+      });
+      ajax
+        .post('/api/update', body, header)
+        .pipe(catchError((error) => {
+          console.log('error: ', error);
+        }))
+        .subscribe((obs) => {
+          console.log(obs);
+          this.getMember();
+        });
       this.$Message.info('Saved');
       this.editedIndex = -1;
     },
+    deletemember(index) {
+      const header = { 'Content-Type': 'application/json', Authorization: `Bearer ${this.GLOBAL.XSRF_TOKEN}` };
+      const body = JSON.stringify({
+        id: index
+      });
+      ajax
+        .post('/api/delete', body, header)
+        .pipe(catchError((error) => {
+          console.log('error: ', error);
+        }))
+        .subscribe(() => {
+          this.getMember();
+        });
+      this.$Message.info('Deleted');
+    },
     getMember() {
-      const header = { Authorization: `Bearer ${this.GLOBAL.XSRF_TOKEN}` };
+      const header = { 'Content-Type': 'application/json', Authorization: `Bearer ${this.GLOBAL.XSRF_TOKEN}` };
       ajax
         .post('/api/list', {}, header)
         .pipe(catchError((error) => {
@@ -182,12 +272,10 @@ export default {
         }))
         .subscribe(
           (obs) => {
-            console.log(obs.response);
             this.posts = obs.response;
           },
           error => console.log(error),
           () => {
-            console.log(213);
             console.log(this.posts);
             this.changepage(1);
             this.loading = false;
