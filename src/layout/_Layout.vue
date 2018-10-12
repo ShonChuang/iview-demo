@@ -52,6 +52,18 @@
 </template>
 
 <script>
+import Vue from 'vue';
+import { Header, Icon, Layout, Menu, MenuGroup, MenuItem, Sider, Submenu } from 'iview';
+
+Vue.component('Header', Header);
+Vue.component('Icon', Icon);
+Vue.component('Layout', Layout);
+Vue.component('Menu', Menu);
+Vue.component('MenuGroup', MenuGroup);
+Vue.component('MenuItem', MenuItem);
+Vue.component('Sider', Sider);
+Vue.component('Submenu', Submenu);
+
 export default {
   data() {
     return {

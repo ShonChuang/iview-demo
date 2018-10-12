@@ -33,6 +33,12 @@ import VueRx from 'vue-rx';
 import { catchError } from 'rxjs/operators';
 import { ajax } from 'rxjs/ajax';
 import Vue from 'vue';
+import { Alert, Button, Card, Input } from 'iview';
+
+Vue.component('Alert', Alert);
+Vue.component('Button', Button);
+Vue.component('Card', Card);
+Vue.component('Input', Input);
 
 Vue.use(VueRx);
 export default {

@@ -31,6 +31,7 @@
               show-total
               @on-change="changepage"
               show-elevator
+              :current.sync="page"
             ></Page>
           </div>
         </div>
@@ -91,6 +92,21 @@
 // import { Observable, interval, fromEvent, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { ajax } from 'rxjs/ajax';
+import Vue from 'vue';
+import { Button, Card, Input, Breadcrumb, BreadcrumbItem, Table, Modal, Page, Switch, Message } from 'iview';
+
+Vue.component('Breadcrumb', Breadcrumb);
+Vue.component('BreadcrumbItem', BreadcrumbItem);
+Vue.component('Table', Table);
+Vue.component('Modal', Modal);
+Vue.component('Page', Page);
+Vue.component('iSwitch', Switch);
+Vue.component('Message', Message);
+// Vue.component('Button', Button);
+Vue.component('Card', Card);
+// Vue.component('Input', Input);
+Vue.prototype.$Message = Message;
+Vue.prototype.$Modal = Modal;
 
 export default {
   data() {
@@ -100,6 +116,7 @@ export default {
       token: this.GLOBAL.XSRF_TOKEN,
       dataCount: 0,
       pageSize: 10,
+      page: 1,
       createModal: false,
       editModal: false,
       options: [
@@ -206,6 +223,8 @@ export default {
   },
   methods: {
     changepage(index) {
+      // this.$Message.info(`page ${this.page}`);
+      // this.$Message.info(`index ${index}`);
       const start = (index - 1) * this.pageSize;
       const end = index * this.pageSize;
       this.memberdata = this.posts.slice(start, end);
@@ -302,7 +321,7 @@ export default {
           },
           error => console.log(error),
           () => {
-            this.changepage(1);
+            this.changepage(this.page);
             this.loading = false;
           }
         );
