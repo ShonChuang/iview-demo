@@ -22,11 +22,25 @@
           登入
         </Button>
       </div>
+    {{posts}}
     </Card>
   </div>
 </template>
 
 <script>
+import VueRx from 'vue-rx';
+// import { Observable, interval, fromEvent, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { ajax } from 'rxjs/ajax';
+import Vue from 'vue';
+import { Alert, Button, Card, Input } from 'iview';
+
+Vue.component('Alert', Alert);
+Vue.component('Button', Button);
+Vue.component('Card', Card);
+Vue.component('Input', Input);
+
+Vue.use(VueRx);
 export default {
   data() {
     return {
@@ -37,8 +51,14 @@ export default {
       logindata: {
         status: '',
         token: ''
-      }
+      },
+      posts: ''
     };
+  },
+  beforeCreate() {
+    if (this.GLOBAL.XSRF_TOKEN !== '') {
+      this.$router.push({ name: 'Layout' });
+    }
   },
   methods: {
     doLogin(account, password) {
@@ -53,9 +73,29 @@ export default {
         };
         if (this.logindata.status === 'success') {
           this.GLOBAL.XSRF_TOKEN = this.logindata.token;
-          this.$router.push({ name: 'Layout' });
+          // this.$router.push({ name: 'Layout' });
+          this.callLoginAPI(account, password);
         }
       }
+    },
+    callLoginAPI(account, password) {
+      const body = JSON.stringify({ AccountId: account, Password: password });
+      ajax
+        .post('/api/login', body, { 'Content-Type': 'application/json' })
+        .pipe(catchError((error) => {
+          console.log('error: ', error);
+        }))
+        .subscribe((obs) => {
+          console.log(obs.response);
+          if (obs.response.status === '1') {
+            this.posts = obs.response.data;
+            this.GLOBAL.XSRF_TOKEN = this.posts;
+            this.$router.push({ name: 'Layout' });
+          } else {
+            console.log('error: ', obs.response);
+            this.$Message.info(obs.response.statusMsg);
+          }
+        });
     }
   }
 };

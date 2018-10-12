@@ -7,8 +7,22 @@
       <BreadcrumbItem>人員列表</BreadcrumbItem>
     </Breadcrumb>
     <Card>
+      <p slot="title">
+          <Icon type="ios-film-outline"></Icon>
+          人員列表
+      </p>
+      <a href="" slot="extra" v-on:click.prevent="createAccount">
+          <Icon type="ios-loop-strong"></Icon>
+          Create
+      </a>
       <div style="height: 600px">
-        <Table size="small" border ref="selection" :columns="columns" :data="memberdata"></Table>
+        <Table size="small"
+        :loading="loading"
+        border
+        ref="selection"
+        :columns="columns"
+        :data="memberdata">
+        </Table>
         <div style="margin: 10px;overflow: hidden">
           <div style="float: right;">
             <Page
@@ -16,6 +30,8 @@
               :page-size="pageSize"
               show-total
               @on-change="changepage"
+              show-elevator
+              :current.sync="page"
             ></Page>
           </div>
         </div>
@@ -25,14 +41,47 @@
           ok-text="儲存"
           @on-ok="modifymamber"
         >
-          <span style="display:inline-block;width:100px;">Name:</span>
-          <Input style="width:auto" v-model="editedItem.name" placeholder=""></Input><br>
-          <span style="display:inline-block;width:100px;">Age:</span>
-          <Input style="width:auto" v-model="editedItem.age" placeholder=""></Input><br>
-          <span style="display:inline-block;width:100px;">Address:</span>
-          <Input style="width:auto" v-model="editedItem.address" placeholder=""></Input><br>
-          <span style="display:inline-block;width:100px;">Date:</span>
-          <Input style="width:auto" v-model="editedItem.date" placeholder=""></Input>
+          <span style="display:inline-block;width:100px;">id:</span>
+          {{editedItem.id}}<br>
+          <span style="display:inline-block;width:100px;">accountId:</span>
+          {{editedItem.accountId}}<br>
+          <span style="display:inline-block;width:100px;">memberName:</span>
+          <Input style="width:auto" v-model="editedItem.memberName" placeholder=""></Input><br>
+          <span style="display:inline-block;width:100px;">email:</span>
+          <Input style="width:auto" v-model="editedItem.email" placeholder=""></Input><br>
+          <span style="display:inline-block;width:100px;">mobilephone:</span>
+          <Input style="width:auto" v-model="editedItem.mobilephone" placeholder=""></Input><br>
+          <span style="display:inline-block;width:100px;">帳號狀態:</span>
+          <i-switch size="large" v-model="editedItem.isEnable">
+            <span slot="open">啟用</span>
+            <span slot="close">禁用</span>
+          </i-switch><br>
+          <span style="display:inline-block;width:100px;">creatTime:</span>
+          {{editedItem.creatTime}}<br>
+          <span style="display:inline-block;width:100px;">editTime:</span>
+          {{editedItem.editTime}}
+        </Modal>
+        <Modal
+          v-model="createModal"
+          title="新增資料"
+          ok-text="完成"
+          @on-ok="callCreateAPI"
+        >
+          <span style="display:inline-block;width:100px;">accountId:</span>
+          <Input style="width:auto" v-model="editedItem.accountId" placeholder="帳號"></Input><br>
+          <span style="display:inline-block;width:100px;">password:</span>
+          <Input style="width:auto" v-model="editedItem.password" placeholder="密碼" type="password"></Input><br>
+          <span style="display:inline-block;width:100px;">memberName:</span>
+          <Input style="width:auto" v-model="editedItem.memberName" placeholder="會員名稱"></Input><br>
+          <span style="display:inline-block;width:100px;">email:</span>
+          <Input style="width:auto" v-model="editedItem.email" placeholder="email" type="email"></Input><br>
+          <span style="display:inline-block;width:100px;">mobilephone:</span>
+          <Input style="width:auto" v-model="editedItem.mobilephone" placeholder="手機"></Input><br>
+          <span style="display:inline-block;width:100px;">帳號狀態:</span>
+          <i-switch size="large" v-model="editedItem.isEnable">
+            <span slot="open">啟用</span>
+            <span slot="close">禁用</span>
+          </i-switch>
         </Modal>
       </div>
     </Card>
@@ -40,38 +89,67 @@
 </template>
 
 <script>
+// import { Observable, interval, fromEvent, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { ajax } from 'rxjs/ajax';
+import Vue from 'vue';
+import { Button, Card, Input, Breadcrumb, BreadcrumbItem, Table, Modal, Page, Switch, Message } from 'iview';
+
+Vue.component('Breadcrumb', Breadcrumb);
+Vue.component('BreadcrumbItem', BreadcrumbItem);
+Vue.component('Table', Table);
+Vue.component('Modal', Modal);
+Vue.component('Page', Page);
+Vue.component('iSwitch', Switch);
+Vue.component('Message', Message);
+// Vue.component('Button', Button);
+Vue.component('Card', Card);
+// Vue.component('Input', Input);
+Vue.prototype.$Message = Message;
+Vue.prototype.$Modal = Modal;
+
 export default {
   data() {
     return {
+      loading: true,
+      edit_loading: true,
       token: this.GLOBAL.XSRF_TOKEN,
       dataCount: 0,
       pageSize: 10,
+      page: 1,
+      createModal: false,
       editModal: false,
+      options: [
+        { text: 'Yes', value: true },
+        { text: 'No', value: false }
+      ],
       columns: [
         {
-          type: 'selection',
-          width: 60,
+          title: 'ID',
+          key: 'id',
+          width: 100,
           align: 'center'
+          // sortable: true
         },
         {
-          title: 'Name',
-          key: 'name',
-          sortable: true
+          title: '姓名',
+          key: 'memberName'
+          // sortable: true
         },
         {
-          title: 'Age',
-          key: 'age',
-          sortable: true
+          title: 'email',
+          key: 'email'
+          // sortable: true
         },
         {
-          title: 'Address',
-          key: 'address',
-          sortable: true
+          title: '手機',
+          key: 'mobilephone'
+          // sortable: true
         },
         {
           title: 'Action',
           key: 'action',
-          width: 150,
+          width: 200,
           align: 'center',
           render: (h, params) => h('div', [
             h('Button', {
@@ -87,7 +165,7 @@ export default {
                   this.show(params.index);
                 }
               }
-            }, 'View'),
+            }, '詳細'),
             h('Button', {
               props: {
                 type: 'primary',
@@ -103,150 +181,150 @@ export default {
                   this.editModal = true;
                 }
               }
-            }, '編輯')
+            }, '編輯'),
+            h('Button', {
+              props: {
+                type: 'primary',
+                size: 'small'
+              },
+              style: {
+                marginRight: '5px'
+              },
+              on: {
+                click: () => {
+                  this.deletemember(this.memberdata[params.index].id);
+                }
+              }
+            }, '刪除')
           ])
         }
       ],
       posts: [
-        {
-          name: 'John Brown',
-          age: 18,
-          address: 'New York No. 1 Lake Park',
-          date: '2016-10-03'
-        },
-        {
-          name: 'Jim Green',
-          age: 24,
-          address: 'London No. 1 Lake Park',
-          date: '2016-10-01'
-        },
-        {
-          name: 'Joe Black',
-          age: 30,
-          address: 'Sydney No. 1 Lake Park',
-          date: '2016-10-02'
-        },
-        {
-          name: 'Joe Black',
-          age: 30,
-          address: 'Sydney No. 1 Lake Park',
-          date: '2016-10-02'
-        },
-        {
-          name: 'Joe Black',
-          age: 30,
-          address: 'Sydney No. 1 Lake Park',
-          date: '2016-10-02'
-        },
-        {
-          name: 'Joe Black',
-          age: 30,
-          address: 'Sydney No. 1 Lake Park',
-          date: '2016-10-02'
-        },
-        {
-          name: 'Joe Black',
-          age: 30,
-          address: 'Sydney No. 1 Lake Park',
-          date: '2016-10-02'
-        },
-        {
-          name: 'Joe Black',
-          age: 30,
-          address: 'Sydney No. 1 Lake Park',
-          date: '2016-10-02'
-        },
-        {
-          name: 'Joe Black',
-          age: 30,
-          address: 'Sydney No. 1 Lake Park',
-          date: '2016-10-02'
-        },
-        {
-          name: 'Joe Black',
-          age: 30,
-          address: 'Sydney No. 1 Lake Park',
-          date: '2016-10-02'
-        },
-        {
-          name: 'Joe Black',
-          age: 30,
-          address: 'Sydney No. 1 Lake Park',
-          date: '2016-10-02'
-        },
-        {
-          name: 'Joe Black',
-          age: 30,
-          address: 'Sydney No. 1 Lake Park',
-          date: '2016-10-02'
-        },
-        {
-          name: 'Joe Black',
-          age: 30,
-          address: 'Sydney No. 1 Lake Park',
-          date: '2016-10-02'
-        },
-        {
-          name: 'Joe Black',
-          age: 30,
-          address: 'Sydney No. 1 Lake Park',
-          date: '2016-10-02'
-        },
-        {
-          name: 'Joe Black',
-          age: 30,
-          address: 'Sydney No. 1 Lake Park',
-          date: '2016-10-02'
-        },
-        {
-          name: 'Joe Black',
-          age: 30,
-          address: 'Sydney No. 1 Lake Park',
-          date: '2016-10-02'
-        },
-        {
-          name: 'Jon Snow',
-          age: 26,
-          address: 'Ottawa No. 2 Lake Park',
-          date: '2016-10-04'
-        }
       ],
       memberdata: [
       ],
+      defaultItem: {
+        isEnable: true
+      },
       editedItem: {
-        name: '123',
-        age: 0,
-        address: '',
-        date: '1911-01-01'
       },
       editedIndex: -1
     };
   },
-  mounted() {
-    this.dataCount = this.posts.length;
-    this.changepage(1);
+  beforeCreate() {
   },
-
-
+  beforeMount() {
+    this.getMember();
+  },
+  mounted() {
+  },
+  updated() {
+    this.dataCount = this.posts.length;
+  },
   methods: {
     changepage(index) {
+      // this.$Message.info(`page ${this.page}`);
+      // this.$Message.info(`index ${index}`);
       const start = (index - 1) * this.pageSize;
       const end = index * this.pageSize;
       this.memberdata = this.posts.slice(start, end);
     },
     show(index) {
       this.$Modal.info({
-        title: 'User Info',
+        title: '詳細資料',
         content: `
-        Name：${this.memberdata[index].name}<br>
-        Age：${this.memberdata[index].age}<br>
-        Address：${this.memberdata[index].address}`
+        ID：${this.memberdata[index].id}<br>
+        accountId：${this.memberdata[index].accountId}<br>
+        姓名：${this.memberdata[index].memberName}<br>
+        email：${this.memberdata[index].email}<br>
+        手機：${this.memberdata[index].mobilephone}<br>
+        建立時間：${this.memberdata[index].creatTime}<br>
+        最後修改間：${this.memberdata[index].editTime}`
       });
     },
-    modifymamber() {
-      Object.assign(this.memberdata[this.editedIndex], this.editedItem);
+    createAccount() {
+      this.editedItem = this.defaultItem;
+      this.createModal = true;
+    },
+    callCreateAPI() {
+      const header = { 'Content-Type': 'application/json', Authorization: `Bearer ${this.GLOBAL.XSRF_TOKEN}` };
+
+      const body = JSON.stringify({
+        accountId: this.editedItem.accountId,
+        password: this.editedItem.password,
+        memberName: this.editedItem.memberName,
+        email: this.editedItem.email,
+        mobilephone: this.editedItem.mobilephone,
+        isEnable: this.editedItem.isEnable
+      });
+      ajax
+        .post('/api/create', body, header)
+        .pipe(catchError((error) => {
+          console.log('error: ', error);
+        }))
+        .subscribe((obs) => {
+          console.log('Create: ', obs);
+          this.getMember();
+        });
       this.$Message.info('Saved');
       this.editedIndex = -1;
+    },
+    modifymamber() {
+      const header = { 'Content-Type': 'application/json', Authorization: `Bearer ${this.GLOBAL.XSRF_TOKEN}` };
+
+
+      const body = JSON.stringify({
+        id: this.editedItem.id,
+        accountId: this.editedItem.accountId,
+        password: 'abc123',
+        memberName: this.editedItem.memberName,
+        email: this.editedItem.email,
+        mobilephone: this.editedItem.mobilephone,
+        isEnable: this.editedItem.isEnable
+      });
+      ajax
+        .post('/api/update', body, header)
+        .pipe(catchError((error) => {
+          console.log('error: ', error);
+        }))
+        .subscribe(() => {
+          this.getMember();
+        });
+      this.$Message.info('Saved');
+      this.editedIndex = -1;
+    },
+    deletemember(index) {
+      const header = { 'Content-Type': 'application/json', Authorization: `Bearer ${this.GLOBAL.XSRF_TOKEN}` };
+      const body = JSON.stringify({
+        id: index
+      });
+      ajax
+        .post('/api/delete', body, header)
+        .pipe(catchError((error) => {
+          console.log('error: ', error);
+        }))
+        .subscribe(() => {
+          this.getMember();
+        });
+      this.$Message.info('Deleted');
+    },
+    getMember() {
+      const header = { 'Content-Type': 'application/json', Authorization: `Bearer ${this.GLOBAL.XSRF_TOKEN}` };
+      ajax
+        .post('/api/list', {}, header)
+        .pipe(catchError((error) => {
+          console.log('error: ', error);
+        }))
+        .subscribe(
+          (obs) => {
+            this.posts = obs.response;
+          },
+          error => console.log(error),
+          () => {
+            this.changepage(this.page);
+            this.loading = false;
+          }
+        );
     }
   }
 };
