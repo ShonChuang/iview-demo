@@ -60,6 +60,7 @@ export default {
   },
   methods: {
     doLogout() {
+      this.GLOBAL.XSRF_TOKEN = '';
       this.$router.push({ name: 'Login' });
     }
   },

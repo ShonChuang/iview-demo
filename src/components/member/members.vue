@@ -11,7 +11,7 @@
           <Icon type="ios-film-outline"></Icon>
           人員列表
       </p>
-      <a href="" slot="extra" @click.prevent="createAccount()">
+      <a href="" slot="extra" v-on:click.prevent="createAccount">
           <Icon type="ios-loop-strong"></Icon>
           Create
       </a>
@@ -30,6 +30,7 @@
               :page-size="pageSize"
               show-total
               @on-change="changepage"
+              show-elevator
             ></Page>
           </div>
         </div>
@@ -59,25 +60,27 @@
           <span style="display:inline-block;width:100px;">editTime:</span>
           {{editedItem.editTime}}
         </Modal>
-        <Modal v-model="modal2" width="360">
-          <p slot="header" style="color:#f60;text-align:center">
-              <Icon type="ios-information-circle"></Icon>
-              <span>Delete confirmation</span>
-          </p>
-          <div style="text-align:center">
-            <p>After this task is deleted, the downstream 10 tasks will not be implemented.</p>
-            <p>Will you delete it?</p>
-          </div>
-          <div slot="footer">
-            <Button
-              type="error"
-              size="large"
-              long
-              :loading="modal_loading"
-              @click="del"
-            >Delete
-            </Button>
-          </div>
+        <Modal
+          v-model="createModal"
+          title="新增資料"
+          ok-text="完成"
+          @on-ok="callCreateAPI"
+        >
+          <span style="display:inline-block;width:100px;">accountId:</span>
+          <Input style="width:auto" v-model="editedItem.accountId" placeholder="帳號"></Input><br>
+          <span style="display:inline-block;width:100px;">password:</span>
+          <Input style="width:auto" v-model="editedItem.password" placeholder="密碼" type="password"></Input><br>
+          <span style="display:inline-block;width:100px;">memberName:</span>
+          <Input style="width:auto" v-model="editedItem.memberName" placeholder="會員名稱"></Input><br>
+          <span style="display:inline-block;width:100px;">email:</span>
+          <Input style="width:auto" v-model="editedItem.email" placeholder="email" type="email"></Input><br>
+          <span style="display:inline-block;width:100px;">mobilephone:</span>
+          <Input style="width:auto" v-model="editedItem.mobilephone" placeholder="手機"></Input><br>
+          <span style="display:inline-block;width:100px;">帳號狀態:</span>
+          <i-switch size="large" v-model="editedItem.isEnable">
+            <span slot="open">啟用</span>
+            <span slot="close">禁用</span>
+          </i-switch>
         </Modal>
       </div>
     </Card>
@@ -93,6 +96,7 @@ export default {
   data() {
     return {
       loading: true,
+      edit_loading: true,
       token: this.GLOBAL.XSRF_TOKEN,
       dataCount: 0,
       pageSize: 10,
@@ -220,12 +224,35 @@ export default {
       });
     },
     createAccount() {
+      this.editedItem = this.defaultItem;
+      this.createModal = true;
+    },
+    callCreateAPI() {
+      const header = { 'Content-Type': 'application/json', Authorization: `Bearer ${this.GLOBAL.XSRF_TOKEN}` };
 
+      const body = JSON.stringify({
+        accountId: this.editedItem.accountId,
+        password: this.editedItem.password,
+        memberName: this.editedItem.memberName,
+        email: this.editedItem.email,
+        mobilephone: this.editedItem.mobilephone,
+        isEnable: this.editedItem.isEnable
+      });
+      ajax
+        .post('/api/create', body, header)
+        .pipe(catchError((error) => {
+          console.log('error: ', error);
+        }))
+        .subscribe((obs) => {
+          console.log('Create: ', obs);
+          this.getMember();
+        });
+      this.$Message.info('Saved');
+      this.editedIndex = -1;
     },
     modifymamber() {
-      // Object.assign(this.memberdata[this.editedIndex], this.editedItem);
       const header = { 'Content-Type': 'application/json', Authorization: `Bearer ${this.GLOBAL.XSRF_TOKEN}` };
-      // const body = JSON.stringify(this.editedItem);
+
 
       const body = JSON.stringify({
         id: this.editedItem.id,
@@ -234,15 +261,14 @@ export default {
         memberName: this.editedItem.memberName,
         email: this.editedItem.email,
         mobilephone: this.editedItem.mobilephone,
-        isEnable: true
+        isEnable: this.editedItem.isEnable
       });
       ajax
         .post('/api/update', body, header)
         .pipe(catchError((error) => {
           console.log('error: ', error);
         }))
-        .subscribe((obs) => {
-          console.log(obs);
+        .subscribe(() => {
           this.getMember();
         });
       this.$Message.info('Saved');
@@ -276,7 +302,6 @@ export default {
           },
           error => console.log(error),
           () => {
-            console.log(this.posts);
             this.changepage(1);
             this.loading = false;
           }
