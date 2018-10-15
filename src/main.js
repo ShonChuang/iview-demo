@@ -12,6 +12,7 @@ Vue.config.productionTip = false;
 Vue.use(VueRouter);
 Vue.prototype.GLOBAL = global_;
 const router = new VueRouter({
+  mode: 'history',
   routes
 });
 
