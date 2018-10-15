@@ -225,8 +225,6 @@ export default {
   },
   methods: {
     changepage(index) {
-      // this.$Message.info(`page ${this.page}`);
-      // this.$Message.info(`index ${index}`);
       const start = (index - 1) * this.pageSize;
       const end = index * this.pageSize;
       this.memberdata = this.posts.slice(start, end);
