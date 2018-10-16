@@ -9,7 +9,8 @@
       <br>
       <br>
       密碼：
-      <Input style="width:auto" v-model="password" type="password"/>
+      <Input style="width:auto" v-model="password" type="password"
+      v-on:keyup.13.native="doLogin(account,password)"/>
       <Alert show-icon type="error" v-show="passwordalert" style="display:inline">請輸入密碼</Alert>
       <br>
       <br>
@@ -22,18 +23,15 @@
           登入
         </Button>
       </div>
-    {{posts}}
     </Card>
   </div>
 </template>
 
 <script>
 import VueRx from 'vue-rx';
-// import { Observable, interval, fromEvent, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
-import { ajax } from 'rxjs/ajax';
 import Vue from 'vue';
 import { Alert, Button, Card, Input } from 'iview';
+import Login from '@/services/login';
 
 Vue.component('Alert', Alert);
 Vue.component('Button', Button);
@@ -51,56 +49,45 @@ export default {
       logindata: {
         status: '',
         token: ''
-      },
-      posts: ''
+      }
     };
   },
   beforeCreate() {
-    if (this.GLOBAL.XSRF_TOKEN !== '') {
-      this.$router.push({ name: 'Layout' });
-    }
+    // if (this.GLOBAL.XSRF_TOKEN !== '') {
+    //   this.$router.push({ name: 'Layout' });
+    // }
   },
   methods: {
     doLogin(account, password) {
+      let errcount = 0;
       this.accountalert = false;
       this.passwordalert = false;
-      if (!account) this.accountalert = true;
-      else if (!password) this.passwordalert = true;
-      else {
-        this.logindata = {
-          status: 'success',
-          token: '123456'
-        };
-        if (this.logindata.status === 'success') {
-          this.GLOBAL.XSRF_TOKEN = this.logindata.token;
-          // this.$router.push({ name: 'Layout' });
-          this.callLoginAPI(account, password);
-        }
+      if (!account) {
+        this.accountalert = true;
+        errcount += 1;
       }
-    },
-    callLoginAPI(account, password) {
-      const body = JSON.stringify({ AccountId: account, Password: password });
-      ajax
-        .post('/api/login', body, { 'Content-Type': 'application/json' })
-        .pipe(catchError((error) => {
-          console.log('error: ', error);
-        }))
-        .subscribe((obs) => {
-          console.log(obs.response);
-          if (obs.response.status === '1') {
-            this.posts = obs.response.data;
-            this.GLOBAL.XSRF_TOKEN = this.posts;
-            this.$router.push({ name: 'Layout' });
-          } else {
-            console.log('error: ', obs.response);
-            this.$Message.info(obs.response.statusMsg);
-          }
-        });
+      if (!password) {
+        this.passwordalert = true;
+        errcount += 1;
+      }
+      if (errcount === 0) {
+        Login.callLoginAPI(account, password).subscribe(
+          (obs) => {
+            this.logindata = obs.response;
+          },
+          error => console.log(error),
+          () => {
+            if (this.logindata.status === '1') {
+              this.GLOBAL.XSRF_TOKEN = this.logindata.data;
+              this.$router.push({ name: 'Layout' });
+            } else {
+              console.log('error: ', this.logindata.data);
+              this.$Message.info(this.logindata.statusMsg);
+            }
+          },
+        );
+      }
     }
   }
 };
 </script>
-
-<style>
-
-</style>

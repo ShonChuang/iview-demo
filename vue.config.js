@@ -2,7 +2,7 @@ module.exports = {
   devServer: {
     proxy: {
       '/api': {
-        target: 'http://192.168.11.144',
+        target: 'http://teola.digitalcenter.cn/TEConsoleEX-Test',
         changeOrigin: true
       }
     }

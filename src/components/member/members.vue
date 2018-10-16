@@ -70,11 +70,13 @@
           <span style="display:inline-block;width:100px;">accountId:</span>
           <Input style="width:auto" v-model="editedItem.accountId" placeholder="帳號"></Input><br>
           <span style="display:inline-block;width:100px;">password:</span>
-          <Input style="width:auto" v-model="editedItem.password" placeholder="密碼" type="password"></Input><br>
+          <Input style="width:auto" v-model="editedItem.password"
+          placeholder="密碼" type="password"></Input><br>
           <span style="display:inline-block;width:100px;">memberName:</span>
           <Input style="width:auto" v-model="editedItem.memberName" placeholder="會員名稱"></Input><br>
           <span style="display:inline-block;width:100px;">email:</span>
-          <Input style="width:auto" v-model="editedItem.email" placeholder="email" type="email"></Input><br>
+          <Input style="width:auto" v-model="editedItem.email"
+          placeholder="email" type="email"></Input><br>
           <span style="display:inline-block;width:100px;">mobilephone:</span>
           <Input style="width:auto" v-model="editedItem.mobilephone" placeholder="手機"></Input><br>
           <span style="display:inline-block;width:100px;">帳號狀態:</span>
@@ -93,7 +95,7 @@
 import { catchError } from 'rxjs/operators';
 import { ajax } from 'rxjs/ajax';
 import Vue from 'vue';
-import { Button, Card, Input, Breadcrumb, BreadcrumbItem, Table, Modal, Page, Switch, Message } from 'iview';
+import { Card, Breadcrumb, BreadcrumbItem, Table, Modal, Page, Switch, Message } from 'iview';
 
 Vue.component('Breadcrumb', Breadcrumb);
 Vue.component('BreadcrumbItem', BreadcrumbItem);
@@ -223,8 +225,6 @@ export default {
   },
   methods: {
     changepage(index) {
-      // this.$Message.info(`page ${this.page}`);
-      // this.$Message.info(`index ${index}`);
       const start = (index - 1) * this.pageSize;
       const end = index * this.pageSize;
       this.memberdata = this.posts.slice(start, end);
@@ -311,7 +311,7 @@ export default {
     getMember() {
       const header = { 'Content-Type': 'application/json', Authorization: `Bearer ${this.GLOBAL.XSRF_TOKEN}` };
       ajax
-        .post('/api/list', {}, header)
+        .post('/api/iqmemberlist', {}, header)
         .pipe(catchError((error) => {
           console.log('error: ', error);
         }))
