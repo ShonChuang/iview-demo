@@ -9,7 +9,8 @@
       <br>
       <br>
       密碼：
-      <Input style="width:auto" v-model="password" type="password"/>
+      <Input style="width:auto" v-model="password" type="password"
+      v-on:keyup.13.native="doLogin(account,password)"/>
       <Alert show-icon type="error" v-show="passwordalert" style="display:inline">請輸入密碼</Alert>
       <br>
       <br>
@@ -52,17 +53,24 @@ export default {
     };
   },
   beforeCreate() {
-    if (this.GLOBAL.XSRF_TOKEN !== '') {
-      this.$router.push({ name: 'Layout' });
-    }
+    // if (this.GLOBAL.XSRF_TOKEN !== '') {
+    //   this.$router.push({ name: 'Layout' });
+    // }
   },
   methods: {
     doLogin(account, password) {
+      let errcount = 0;
       this.accountalert = false;
       this.passwordalert = false;
-      if (!account) this.accountalert = true;
-      else if (!password) this.passwordalert = true;
-      else {
+      if (!account) {
+        this.accountalert = true;
+        errcount += 1;
+      }
+      if (!password) {
+        this.passwordalert = true;
+        errcount += 1;
+      }
+      if (errcount === 0) {
         Login.callLoginAPI(account, password).subscribe(
           (obs) => {
             this.logindata = obs.response;

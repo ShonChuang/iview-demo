@@ -311,7 +311,7 @@ export default {
     getMember() {
       const header = { 'Content-Type': 'application/json', Authorization: `Bearer ${this.GLOBAL.XSRF_TOKEN}` };
       ajax
-        .post('/api/list', {}, header)
+        .post('/api/iqmemberlist', {}, header)
         .pipe(catchError((error) => {
           console.log('error: ', error);
         }))
