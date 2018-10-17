@@ -21,7 +21,7 @@
           id="loginbtn"
           style="text-align: center"
           type="success"
-          @click="doLogin(account,password)"
+          @click.native="doLogin(account,password)"
         >
           登入
         </Button>
@@ -70,26 +70,23 @@ export default {
         this.passwordalert = true;
         errcount += 1;
       }
-      console.log(this.accountalert);
-      console.log(this.passwordalert);
-      console.log(errcount);
-      // if (errcount === 0) {
-      //   Login.callLoginAPI(account, password).subscribe(
-      //     (obs) => {
-      //       this.logindata = obs.response;
-      //     },
-      //     error => console.log(error),
-      //     () => {
-      //       if (this.logindata.status === '1') {
-      //         this.GLOBAL.XSRF_TOKEN = this.logindata.data;
-      //         this.$router.push({ name: 'Layout' });
-      //       } else {
-      //         console.log('error: ', this.logindata.data);
-      //         this.$Message.info(this.logindata.statusMsg);
-      //       }
-      //     },
-      //   );
-      // }
+      if (errcount === 0) {
+        Login.callLoginAPI(account, password).subscribe(
+          (obs) => {
+            this.logindata = obs.response;
+          },
+          error => console.log(error),
+          () => {
+            if (this.logindata.status === '1') {
+              this.GLOBAL.XSRF_TOKEN = this.logindata.data;
+              this.$router.push({ name: 'Layout' });
+            } else {
+              console.log('error: ', this.logindata.data);
+              this.$Message.info(this.logindata.statusMsg);
+            }
+          },
+        );
+      }
     }
   }
 };

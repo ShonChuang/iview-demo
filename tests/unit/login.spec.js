@@ -2,44 +2,68 @@ import { shallowMount } from '@vue/test-utils';
 import Login from '@/components/login/Login.vue';
 
 describe('Login.vue', () => {
-  it('key account no key password.', () => {
-    // const wrapper = shallowMount(
-    //   Login,
-    //   {
-    //     data() {
-    //       return {
-    //         account: 'howard1',
-    //         password: ''
-    //       };
-    //     }
-    //   }
-    // );
+  it('沒打帳號密碼', () => {
+    const wrapper = shallowMount(Login);
+    wrapper.setData({
+      account: '',
+      password: ''
+    });
+    const vm = wrapper.vm;
+    expect(vm.account).toBe('');
+    expect(vm.password).toBe('');
+    expect(vm.accountalert).toBe(false);
+    expect(vm.passwordalert).toBe(false);
+    const button = wrapper.find('#loginbtn');
+    button.trigger('click');
+    expect(vm.accountalert).toBe(true);
+    expect(vm.passwordalert).toBe(true);
+  });
+  it('沒打帳號', () => {
+    const wrapper = shallowMount(Login);
+    wrapper.setData({
+      account: '',
+      password: 'abc123'
+    });
+    const vm = wrapper.vm;
+    expect(vm.account).toBe('');
+    expect(vm.password).toBe('abc123');
+    expect(vm.accountalert).toBe(false);
+    expect(vm.passwordalert).toBe(false);
+    const button = wrapper.find('#loginbtn');
+    button.trigger('click');
+    expect(vm.accountalert).toBe(true);
+    expect(vm.passwordalert).toBe(false);
+  });
+  it('沒打密碼', () => {
     const wrapper = shallowMount(Login);
     wrapper.setData({
       account: 'howard1',
       password: ''
     });
-    // expect(wrapper.find('#loginbtn').element.id).toBe(false);
-    expect(wrapper.vm.accountalert).toBe(false);
-    expect(wrapper.vm.passwordalert).toBe(false);
-    // wrapper.find('#loginbtn').trigger('click');
-    wrapper.findAll('#loginbtn').trigger('click');
-    console.log(wrapper);
-    expect(wrapper.vm.account).toBe('howard1');
-    expect(wrapper.vm.password).toBe('');
-    expect(wrapper.vm.accountalert).toBe(false);
-    expect(wrapper.vm.passwordalert).toBe(true);
-    // expect(Login).toHaveBeenCalled();
+    const vm = wrapper.vm;
+    expect(vm.account).toBe('howard1');
+    expect(vm.password).toBe('');
+    expect(vm.accountalert).toBe(false);
+    expect(vm.passwordalert).toBe(false);
+    const button = wrapper.find('#loginbtn');
+    button.trigger('click');
+    expect(vm.accountalert).toBe(false);
+    expect(vm.passwordalert).toBe(true);
   });
-  // it('No key Password', () => {
-  //   const user = {
-  //     email: 'howard1',
-  //     password: 'abd123'
-  //   };
-
-  //   doLogin(user.email, user.password);
-  //   // wrapper.find('#passwordinput').da;
-  //   // wrapper.find('#passwordinput').prop('onFocus')().trigger('keydown.enter');
-  //   expect(wrapper.vm.passwordalert).toBe(true);
-  // });
+  it('都有打', () => {
+    const wrapper = shallowMount(Login);
+    wrapper.setData({
+      account: 'howard1',
+        password: 'abc123'
+    });
+    const vm = wrapper.vm;
+    expect(vm.account).toBe('howard1');
+    expect(vm.password).toBe('abc123');
+    expect(vm.accountalert).toBe(false);
+    expect(vm.passwordalert).toBe(false);
+    const button = wrapper.find('#loginbtn');
+    button.trigger('click');
+    expect(vm.accountalert).toBe(false);
+    expect(vm.passwordalert).toBe(false);
+  });
 });
