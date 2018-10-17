@@ -4,21 +4,24 @@
 
       <h1 slot="title" style="text-align: center;">登入呦</h1>
       帳號：
-      <Input style="width:auto" v-model="account"/>
+      <Input style="width:auto" v-model="account"
+          id="accountinput"/>
       <Alert show-icon type="error" v-show="accountalert" style="display:inline">請輸入帳號</Alert>
       <br>
       <br>
       密碼：
       <Input style="width:auto" v-model="password" type="password"
-      v-on:keyup.13.native="doLogin(account,password)"/>
+          id="passwordinput"
+      v-on:keyup.enter.native="doLogin(account,password)"/>
       <Alert show-icon type="error" v-show="passwordalert" style="display:inline">請輸入密碼</Alert>
       <br>
       <br>
       <div style="text-align: center">
         <Button
+          id="loginbtn"
           style="text-align: center"
           type="success"
-          @click="doLogin(account,password)"
+          @click.native="doLogin(account,password)"
         >
           登入
         </Button>
@@ -53,9 +56,6 @@ export default {
     };
   },
   beforeCreate() {
-    // if (this.GLOBAL.XSRF_TOKEN !== '') {
-    //   this.$router.push({ name: 'Layout' });
-    // }
   },
   methods: {
     doLogin(account, password) {

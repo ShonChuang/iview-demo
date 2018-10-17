@@ -1,5 +1,3 @@
-module.exports = {
-  env: {
-    jest: true
-  }
-}
+export const env = {
+  jest: true
+};
