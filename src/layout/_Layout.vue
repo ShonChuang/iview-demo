@@ -44,7 +44,6 @@
         <Button type="primary" @click="doLogout()">Logout</Button>
       </Header>
       <Content :style="{padding: '0 16px 16px'}">
-        <!-- {{this.GLOBAL.XSRF_TOKEN}} -->
         <router-view name="meunArea"/>
       </Content>
     </Layout>

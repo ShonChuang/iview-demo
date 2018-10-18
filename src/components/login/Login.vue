@@ -73,6 +73,8 @@ export default {
       if (errcount === 0) {
         Loginjs.callLoginAPI(account, password).subscribe(
           (obs) => {
+            console.log(obs);
+
             this.logindata = obs.response;
           },
           error => console.log(error),
