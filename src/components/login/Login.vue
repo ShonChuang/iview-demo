@@ -34,7 +34,7 @@
 import VueRx from 'vue-rx';
 import Vue from 'vue';
 import { Alert, Button, Card, Input } from 'iview';
-import Login from '@/services/login';
+import Loginjs from '@/services/login';
 
 Vue.component('Alert', Alert);
 Vue.component('Button', Button);
@@ -71,7 +71,7 @@ export default {
         errcount += 1;
       }
       if (errcount === 0) {
-        Login.callLoginAPI(account, password).subscribe(
+        Loginjs.callLoginAPI(account, password).subscribe(
           (obs) => {
             this.logindata = obs.response;
           },
@@ -81,7 +81,7 @@ export default {
               this.GLOBAL.XSRF_TOKEN = this.logindata.data;
               this.$router.push({ name: 'Layout' });
             } else {
-              console.log('error: ', this.logindata.data);
+              console.log('error: ', this.logindata.statusMsg);
               this.$Message.info(this.logindata.statusMsg);
             }
           },
