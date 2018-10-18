@@ -77,9 +77,9 @@ export default {
     }
   },
   beforeCreate() {
-    if (this.GLOBAL.XSRF_TOKEN === '') {
-      this.$router.push({ name: 'Login' });
-    }
+    // if (this.GLOBAL.XSRF_TOKEN === '') {
+    //   this.$router.push({ name: 'Login' });
+    // }
   }
 };
 </script>

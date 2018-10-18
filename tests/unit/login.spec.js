@@ -86,12 +86,19 @@ describe('Login.vue', () => {
     const vm = wrapper.vm;
     expect(vm.account).toBe('a');
     expect(vm.password).toBe('a');
-    expect(vm.accountalert).toBe(false);
-    expect(vm.passwordalert).toBe(false);
     const button = wrapper.find('#loginbtn');
     button.trigger('click');
-    expect(vm.accountalert).toBe(false);
-    expect(vm.passwordalert).toBe(false);
+    //expect(vm.logindata.data).toBe(false);
+  });
+  it('頁面有button,input,div', () => {
+    const wrapper = mount(Login);
+    const vm = wrapper.vm;
+    expect(wrapper.contains('Button')).toBe(true)
+    expect(wrapper.contains('Input')).toBe(true)
+    expect(wrapper.contains('div')).toBe(true)
+    const button = wrapper.find('Button').element.id;
+    console.log(button);
+    
     //expect(vm.logindata.data).toBe(false);
   });
 });

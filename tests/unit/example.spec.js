@@ -16,4 +16,12 @@ describe('HelloWorld.vue', () => {
     });
     expect(wrapper.vm.msg).toMatch(msg);
   });
+  it('props有值', () => {
+    const msg = 'new message';
+    const wrapper = shallowMount(HelloWorld, {
+      propsData: { msg }
+    });
+    expect(wrapper.props().msg).toBe('new message')
+    expect(wrapper.props('msg')).toBe('new message')
+  });
 });
