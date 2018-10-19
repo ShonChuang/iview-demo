@@ -11,9 +11,8 @@ describe('HelloWorld.vue', () => {
   });
   it('renders props.msg when passed', () => {
     const msg = 'new message';
-    const wrapper = shallowMount(HelloWorld, {
-      propsData: { msg }
-    });
+    const wrapper = shallowMount(HelloWorld);
+    wrapper.setProps({ msg });
     expect(wrapper.vm.msg).toMatch(msg);
   });
   it('props有值', () => {
@@ -21,7 +20,7 @@ describe('HelloWorld.vue', () => {
     const wrapper = shallowMount(HelloWorld, {
       propsData: { msg }
     });
-    expect(wrapper.props().msg).toBe('new message')
-    expect(wrapper.props('msg')).toBe('new message')
+    expect(wrapper.props().msg).toBe(msg);
+    expect(wrapper.props('msg')).toBe(msg);
   });
 });
