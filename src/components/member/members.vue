@@ -206,9 +206,20 @@ export default {
       memberdata: [
       ],
       defaultItem: {
+        accountId: '',
+        password: '',
+        memberName: '',
+        email: '',
+        mobilephone: '',
         isEnable: true
       },
       editedItem: {
+        accountId: '',
+        password: '',
+        memberName: '',
+        email: '',
+        mobilephone: '',
+        isEnable: true
       },
       editedIndex: -1
     };
@@ -264,6 +275,15 @@ export default {
         }))
         .subscribe((obs) => {
           console.log('Create: ', obs);
+          Vue.set(this.editedItem, 'accountId', '');
+          Vue.set(this.editedItem, 'password', '');
+          Vue.set(this.editedItem, 'memberName', '');
+          Vue.set(this.editedItem, 'email', '');
+          Vue.set(this.editedItem, 'mobilephone', '');
+          Vue.set(this.editedItem, 'isEnable', true);
+          console.log('editedItem', this.editedItem);
+          console.log('defaultItem', this.defaultItem);
+
           this.getMember();
         });
       this.$Message.info('Saved');
