@@ -31,10 +31,11 @@
 </template>
 
 <script>
+import { mergeMap } from 'rxjs/operators';
 import VueRx from 'vue-rx';
 import Vue from 'vue';
 import { Alert, Button, Card, Input } from 'iview';
-import Loginjs from '@/services/login';
+import loginService from '@/services/loginService';
 
 Vue.component('Alert', Alert);
 Vue.component('Button', Button);
@@ -49,6 +50,7 @@ export default {
       password: '',
       accountalert: false,
       passwordalert: false,
+      response: { status: '', statusMsg: '', data: '' },
       logindata: {
         status: '',
         token: ''
@@ -71,23 +73,25 @@ export default {
         errcount += 1;
       }
       if (errcount === 0) {
-        Loginjs.callLoginAPI(account, password).subscribe(
-          (obs) => {
-            console.log(obs);
-
-            this.logindata = obs.response;
-          },
-          error => console.log(error),
-          () => {
-            if (this.logindata.status === '1') {
-              this.GLOBAL.XSRF_TOKEN = this.logindata.data;
-              this.$router.push({ name: 'Layout' });
-            } else {
-              console.log('error: ', this.logindata.statusMsg);
-              this.$Message.info(this.logindata.statusMsg);
-            }
-          },
-        );
+        loginService.callLoginAPI(account, password)
+          .subscribe(
+            (obs) => {
+              console.log('obs', obs);
+              this.response = obs.response;
+              console.log('response', this.response);
+              this.logindata = obs.response;
+            },
+            error => console.log(error),
+            () => {
+              if (this.logindata.status === '1') {
+                this.GLOBAL.XSRF_TOKEN = this.logindata.data;
+                this.$router.push({ name: 'Layout' });
+              } else {
+                console.log('error: ', this.logindata.statusMsg);
+                this.$Message.info(this.logindata.statusMsg);
+              }
+            },
+          );
       }
     }
   }
