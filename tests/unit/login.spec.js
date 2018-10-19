@@ -64,14 +64,28 @@ describe('Login.vue', () => {
     expect(wrapper.contains('Button')).toBe(true);
     expect(wrapper.contains('Input')).toBe(true);
     expect(wrapper.contains('div')).toBe(true);
-    const button = wrapper.find('Button').element.id;
-    console.log(button);
+    // const button = wrapper.find('Button').element.id;
+    // console.log(button);
 
     // expect(vm.logindata.data).toBe(false);
   });
   it('按鈕是否可見', () => {
     const wrapper = mount(Login, loginjs);
     expect(wrapper.find('Button').isVisible()).toBe(true);
+  });
+  it('有沒有某class', () => {
+    const wrapper = mount(Login, loginjs);
+    console.log(wrapper.find('Button').classes());
+
+    expect(wrapper.find('Button').classes()).toContain('ivu-btn');
+    expect(wrapper.find('Button').classes()).toContain('ivu-btn-success');
+    expect(wrapper.find('Button').classes('ivu-btn')).toBe(true);
+    expect(wrapper.find('Button').classes('ivu-btn-success')).toBe(true);
+  });
+  it('含有子結點', () => {
+    const wrapper = mount(Login, loginjs);
+    expect(wrapper.is('div')).toBe(true);
+    expect(wrapper.is('button')).toBe(false);
   });
 
 
@@ -110,7 +124,7 @@ describe('Login.vue', () => {
       password: ''
     });
     const accinput = wrapper.findAll('#accountinput').at(0);
-    console.log(accinput);
+    // console.log(accinput);
     accinput.element.value = '123';
     accinput.trigger('input');
     // accinput.setValue('howard777');

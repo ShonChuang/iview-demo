@@ -23,4 +23,15 @@ describe('HelloWorld.vue', () => {
     expect(wrapper.props().msg).toBe(msg);
     expect(wrapper.props('msg')).toBe(msg);
   });
+
+
+  // 以下不OK
+
+
+  it('含有子結點', () => {
+    const wrapper = shallowMount(HelloWorld);
+    expect(wrapper.is('div')).toBe(true);
+    expect(wrapper.find('div').is('div')).toBe(true);
+    expect(wrapper.find('p').is('p')).toBe(true);
+  });
 });
