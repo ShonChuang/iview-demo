@@ -274,19 +274,23 @@ export default {
           console.log('error: ', error);
         }))
         .subscribe((obs) => {
-          console.log('Create: ', obs);
-          Vue.set(this.editedItem, 'accountId', '');
-          Vue.set(this.editedItem, 'password', '');
-          Vue.set(this.editedItem, 'memberName', '');
-          Vue.set(this.editedItem, 'email', '');
-          Vue.set(this.editedItem, 'mobilephone', '');
-          Vue.set(this.editedItem, 'isEnable', true);
-          console.log('editedItem', this.editedItem);
-          console.log('defaultItem', this.defaultItem);
-
+          if (obs.response === JSON.stringify('1')) {
+            console.log('Create: ', obs);
+            Vue.set(this.editedItem, 'accountId', '');
+            Vue.set(this.editedItem, 'password', '');
+            Vue.set(this.editedItem, 'memberName', '');
+            Vue.set(this.editedItem, 'email', '');
+            Vue.set(this.editedItem, 'mobilephone', '');
+            Vue.set(this.editedItem, 'isEnable', true);
+            this.$Message.info('Created');
+          } else {
+            this.$Message.info('Created faild');
+          }
+        }, (error) => {
+          console.log('error: ', error);
+        }, () => {
           this.getMember();
         });
-      this.$Message.info('Saved');
       this.editedIndex = -1;
     },
     modifymamber() {
